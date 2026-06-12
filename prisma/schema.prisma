@@ -1,0 +1,418 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProjectStage {
+  IDEA
+  VALIDATION
+  MVP
+  LAUNCH
+  GROWTH
+}
+
+enum UsageEventType {
+  MOCK_AI
+  MOCK_RESEARCH
+  EXPORT
+  PROJECT_CREATE
+  SECTION_SAVE
+}
+
+enum CreditLedgerType {
+  GRANT
+  SPEND
+  ADJUSTMENT
+}
+
+model User {
+  id             String          @id @default(cuid())
+  email          String          @unique
+  name           String?
+  organizationId String?
+  organization   Organization?   @relation(fields: [organizationId], references: [id])
+  projects       Project[]
+  mentorComments MentorComment[]
+  usageLogs      UsageLog[]
+  creditLedger   CreditLedger[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Organization {
+  id           String         @id @default(cuid())
+  name         String
+  users        User[]
+  projects     Project[]
+  usageLogs    UsageLog[]
+  creditLedger CreditLedger[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model Project {
+  id                 String                 @id @default(cuid())
+  userId             String
+  organizationId     String
+  industryTemplateId String?
+  title              String
+  ideaSummary        String
+  ideaDescription    String
+  industry           String
+  targetCustomer     String
+  stage              ProjectStage           @default(IDEA)
+  goal               String
+  teamSize           Int                    @default(1)
+  availableResources String
+  mainConcern        String
+  progress           Int                    @default(0)
+  readinessScore     Int                    @default(0)
+  user               User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization       Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  industryTemplate   IndustryTemplate?      @relation(fields: [industryTemplateId], references: [id])
+  questions          ProjectQuestion[]
+  researchSources    ResearchSource[]
+  marketInsights     MarketInsight[]
+  competitors        Competitor[]
+  personas           Persona[]
+  bmCanvas           BMCanvas?
+  mvpFeatures        MVPFeature[]
+  hypotheses         ValidationHypothesis[]
+  businessPlan       BusinessPlanSection[]
+  irOnePager         IROnePager?
+  marketingCopy      MarketingCopy[]
+  generatedDocuments GeneratedDocument[]
+  mentorShares       MentorShare[]
+  usageLogs          UsageLog[]
+  creditLedger       CreditLedger[]
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([industryTemplateId])
+}
+
+model ProjectQuestion {
+  id        String   @id @default(cuid())
+  projectId String
+  question  String
+  answer    String?
+  order     Int      @default(0)
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, order])
+  @@index([projectId])
+}
+
+model IndustryTemplate {
+  id                           String   @id @default(cuid())
+  industryName                 String   @unique
+  commonCustomerSegments       String[]
+  commonBusinessModels         String[]
+  keyMetrics                   String[]
+  commonRisks                  String[]
+  recommendedValidationMethods String[]
+  businessPlanWritingGuide     String
+  marketingToneGuide           String
+  projects                     Project[]
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+}
+
+model ResearchSource {
+  id          String          @id @default(cuid())
+  projectId   String
+  title       String
+  url         String
+  publisher   String?
+  publishedAt DateTime?
+  notes       String?
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  insights    MarketInsight[] @relation("InsightSources")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([projectId])
+}
+
+model MarketInsight {
+  id                String           @id @default(cuid())
+  projectId         String
+  category          String           @default("market")
+  title             String
+  content           String
+  confidenceLevel   String           @default("medium")
+  evidenceSourceIds String[]
+  isAssumption      Boolean          @default(true)
+  isAiAssumed       Boolean          @default(true)
+  sources           ResearchSource[] @relation("InsightSources")
+  project           Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([projectId])
+}
+
+model Competitor {
+  id              String   @id @default(cuid())
+  projectId       String
+  name            String
+  url             String?
+  targetCustomer  String?
+  coreFeatures    String[]
+  pricing         String?
+  positioning     String?
+  strengths       String[]
+  weaknesses      String[]
+  differentiation String?
+  sourceUrl       String?
+  sourceTitle     String?
+  sourceIds       String[]
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+model Persona {
+  id               String   @id @default(cuid())
+  projectId        String
+  name             String
+  segment          String
+  description      String   @default("")
+  pains            String[]
+  gains            String[]
+  jobsToBeDone     String[]
+  buyingTriggers   String[]
+  objections       String[]
+  interviewQuestions String[]
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+model BMCanvas {
+  id                  String   @id @default(cuid())
+  projectId           String   @unique
+  customerSegments    String
+  valuePropositions   String
+  channels            String
+  customerRelationships String
+  revenueStreams      String
+  keyResources        String
+  keyActivities       String
+  keyPartners         String
+  costStructure       String
+  project             Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model MVPFeature {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String
+  description String?
+  reach       Int      @default(1)
+  impact      Int      @default(3)
+  confidence  Int      @default(3)
+  effort      Int      @default(3)
+  riceScore   Float    @default(0)
+  priority    Int      @default(0)
+  moscowCategory String @default("Should")
+  order       Int      @default(0)
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+model ValidationHypothesis {
+  id            String   @id @default(cuid())
+  projectId     String
+  hypothesis    String
+  method        String
+  successMetric String
+  requiredData  String   @default("")
+  estimatedCost String   @default("")
+  pivotCriteria String   @default("")
+  timeline      String
+  status        String   @default("draft")
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+model BusinessPlanSection {
+  id                String   @id @default(cuid())
+  projectId         String
+  sectionKey        String
+  title             String
+  guide             String
+  aiDraft           String?
+  userContent       String?
+  evidenceSourceIds String[]
+  completenessScore Int      @default(0)
+  order             Int
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([projectId, sectionKey])
+  @@index([projectId])
+}
+
+model IROnePager {
+  id              String   @id @default(cuid())
+  projectId       String   @unique
+  problem         String?
+  solution        String?
+  customer        String?
+  market          String?
+  product         String?
+  competition     String?
+  goToMarket      String?
+  validationPlan  String?
+  traction        String?
+  businessModel   String?
+  team            String?
+  ask             String?
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model MarketingCopy {
+  id        String   @id @default(cuid())
+  projectId String
+  channel   String
+  headline  String
+  body      String
+  cta       String?
+  subheadline String?
+  problemSection String?
+  solutionSection String?
+  featureSection String?
+  socialProof String?
+  pricingCopy String?
+  faqs      Json?
+  variants  Json?
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+model GeneratedDocument {
+  id          String            @id @default(cuid())
+  projectId   String
+  type        String
+  title       String
+  format      String
+  content     String
+  project     Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  versions    DocumentVersion[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([projectId])
+}
+
+model DocumentVersion {
+  id          String            @id @default(cuid())
+  documentId  String
+  version     Int
+  content     String
+  document    GeneratedDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdAt   DateTime          @default(now())
+
+  @@unique([documentId, version])
+}
+
+model MentorShare {
+  id             String          @id @default(cuid())
+  projectId      String
+  token          String          @unique
+  email          String?
+  expiresAt      DateTime?
+  revokedAt      DateTime?
+  project        Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  mentorComments MentorComment[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([projectId])
+}
+
+model MentorComment {
+  id            String      @id @default(cuid())
+  mentorShareId String
+  userId        String?
+  authorName    String?
+  authorEmail   String?
+  documentId    String?
+  sectionKey    String?
+  body          String
+  mentorShare   MentorShare @relation(fields: [mentorShareId], references: [id], onDelete: Cascade)
+  user          User?       @relation(fields: [userId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([mentorShareId])
+}
+
+model UsageLog {
+  id             String         @id @default(cuid())
+  userId         String?
+  organizationId String?
+  projectId      String?
+  eventType      UsageEventType
+  provider       String?
+  operation      String?
+  status         String         @default("success")
+  estimatedTokens Int           @default(0)
+  estimatedCostCents Int        @default(0)
+  creditsUsed    Int            @default(0)
+  metadata       Json?
+  user           User?          @relation(fields: [userId], references: [id])
+  organization   Organization?  @relation(fields: [organizationId], references: [id])
+  project        Project?       @relation(fields: [projectId], references: [id])
+  createdAt      DateTime       @default(now())
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([projectId])
+}
+
+model CreditLedger {
+  id             String           @id @default(cuid())
+  userId         String?
+  organizationId String?
+  projectId      String?
+  type           CreditLedgerType
+  amount         Int
+  balanceAfter   Int
+  reason         String
+  user           User?            @relation(fields: [userId], references: [id])
+  organization   Organization?    @relation(fields: [organizationId], references: [id])
+  project        Project?         @relation(fields: [projectId], references: [id])
+  createdAt      DateTime         @default(now())
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([projectId])
+}

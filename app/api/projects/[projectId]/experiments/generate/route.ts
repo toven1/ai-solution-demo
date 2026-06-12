@@ -1,0 +1,12 @@
+import { NextResponse } from "next/server";
+import { generateValidationExperiments } from "@/lib/artifacts/service";
+
+export async function POST(_request: Request, { params }: { params: Promise<{ projectId: string }> }) {
+  try {
+    await generateValidationExperiments((await params).projectId);
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "검증 실험 생성에 실패했습니다." }, { status: 500 });
+  }
+}
