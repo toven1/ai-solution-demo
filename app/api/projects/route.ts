@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ProjectStage, UsageEventType } from "@prisma/client";
 
+import { getCurrentOrDemoUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { businessPlanSectionTemplates } from "@/lib/plan-sections";
 import { createProjectSchema } from "@/lib/validators/project";
@@ -19,21 +20,24 @@ export async function POST(request: Request) {
       select: { id: true }
     });
 
+    const currentUser = await getCurrentOrDemoUser();
+    const organizationId = currentUser?.organizationId ?? "demo-org";
     const organization = await prisma.organization.upsert({
-      where: { id: "demo-org" },
+      where: { id: organizationId },
       update: {},
-      create: { id: "demo-org", name: "FounderOS Demo Studio" }
+      create: { id: organizationId, name: "FounderOS Demo Studio" }
     });
-
-    const user = await prisma.user.upsert({
-      where: { email: "demo@founderos.ai" },
-      update: { organizationId: organization.id },
-      create: {
-        email: "demo@founderos.ai",
-        name: "Demo Founder",
-        organizationId: organization.id
-      }
-    });
+    const user =
+      currentUser ??
+      (await prisma.user.upsert({
+        where: { email: "demo@founderos.ai" },
+        update: { organizationId: organization.id },
+        create: {
+          email: "demo@founderos.ai",
+          name: "Demo Founder",
+          organizationId: organization.id
+        }
+      }));
 
     const project = await prisma.project.create({
       data: {

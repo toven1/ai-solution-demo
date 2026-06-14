@@ -3,14 +3,16 @@ import { ArrowUpRight, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getCurrentUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { demoProjectFallback } from "@/lib/demo";
 
 export const dynamic = "force-dynamic";
 
-async function getProjects() {
+async function getProjects(userId?: string) {
   try {
     const projects = await prisma.project.findMany({
+      where: userId ? { userId } : undefined,
       orderBy: { updatedAt: "desc" },
       select: {
         id: true,
@@ -32,7 +34,8 @@ async function getProjects() {
 }
 
 export default async function DashboardPage() {
-  const projects = await getProjects();
+  const user = await getCurrentUser();
+  const projects = await getProjects(user?.id);
 
   return (
     <main className="mx-auto w-full max-w-7xl px-5 py-8">

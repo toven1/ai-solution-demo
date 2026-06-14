@@ -1,6 +1,11 @@
 import Link from "next/link";
 
-export default function AppLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+import { LogoutButton } from "@/components/auth/logout-button";
+import { getCurrentUser } from "@/lib/auth/session";
+
+export default async function AppLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const user = await getCurrentUser();
+
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="border-b bg-white">
@@ -15,6 +20,24 @@ export default function AppLayout({ children }: Readonly<{ children: React.React
             <Link href="/projects/new" className="hover:text-slate-950">
               New Project
             </Link>
+            <Link href="/billing" className="hover:text-slate-950">
+              Billing
+            </Link>
+            {user ? (
+              <>
+                <span className="rounded-md bg-teal-50 px-2 py-1 text-xs font-medium text-teal-800">{user.email}</span>
+                <LogoutButton />
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="hover:text-slate-950">
+                  Login
+                </Link>
+                <Link href="/signup" className="hover:text-slate-950">
+                  Sign up
+                </Link>
+              </>
+            )}
           </nav>
         </div>
       </header>

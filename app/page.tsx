@@ -9,9 +9,14 @@ export default function LandingPage() {
       <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-6 py-6">
         <nav className="flex items-center justify-between border-b border-slate-200 pb-4">
           <div className="text-lg font-semibold">FounderOS AI</div>
-          <Button asChild variant="outline">
-            <Link href="/dashboard">Dashboard</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="ghost">
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/dashboard">Dashboard</Link>
+            </Button>
+          </div>
         </nav>
 
         <div className="grid flex-1 items-center gap-10 py-12 lg:grid-cols-[1fr_420px]">
@@ -29,6 +34,9 @@ export default function LandingPage() {
                 <Link href="/projects/new">
                   새 프로젝트 만들기 <ArrowRight className="h-4 w-4" />
                 </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link href="/signup">회원가입 후 결제정보 등록</Link>
               </Button>
               <Button asChild variant="secondary" size="lg">
                 <Link href="/dashboard">데모 프로젝트 보기</Link>

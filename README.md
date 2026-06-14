@@ -15,6 +15,8 @@ FounderOS AI는 초기 창업자를 위한 AI 사업화 워크스페이스 SaaS 
 - MockAIProvider / OpenAIProvider
 - MockResearchProvider / TavilyProvider / SerperProvider
 - Markdown and DOCX export
+- Cookie session demo auth
+- Mock PG billing flow
 
 ## Requirements
 
@@ -46,6 +48,13 @@ Provider behavior:
 - missing research API key: fallback to `MockResearchProvider`
 
 API keys are used only in server-side provider files. They must not be prefixed with `NEXT_PUBLIC_`.
+
+Billing behavior:
+
+- `BILLING_PROVIDER=mock` and `PG_PROVIDER=mock` use the built-in mock PG flow.
+- The demo stores only masked card information, never raw card numbers.
+- Real PG integration should be enabled after business registration, PG review, terms/privacy/refund policy pages, and settlement account preparation.
+- Suggested Korean PG options for later integration are Toss Payments or PortOne. The current code is intentionally provider-ready but not connected to a live PG account.
 
 ## Setup
 
@@ -99,10 +108,21 @@ Main demo project after seed:
 동네 학원을 위한 AI 상담·학습 리포트 자동화 SaaS
 ```
 
+Demo login after seed:
+
+```text
+email: demo@founderos.ai
+password: founderos-demo-1234
+```
+
 Useful routes:
 
 - `/` Landing Page
+- `/signup` Sign Up
+- `/login` Login
 - `/dashboard` Dashboard
+- `/billing` Billing and payment method registration
+- `/billing/checkout` Checkout alias
 - `/projects/new` Project Creation
 - `/projects/demo-project-ai-academy` Workspace
 - `/projects/demo-project-ai-academy/questions` Follow-up Questions
@@ -122,21 +142,24 @@ Useful routes:
 ## Delivery Demo Flow
 
 1. Open `/dashboard` and show the demo project.
-2. Create a new project from `/projects/new`.
-3. Open the demo workspace and walk through the left sidebar.
-4. Generate follow-up questions and save answers.
-5. Generate market research and show source cards, confidence badges, and AI assumption badges.
-6. Generate competitor matrix.
-7. Generate personas, BM Canvas, MVP features, and validation experiments.
-8. Generate business plan drafts, edit one section, and save it.
-9. Generate IR One-Pager and marketing copy.
-10. Export Markdown and DOCX from Export page and show version history.
-11. Create a mentor share link, open the read-only share page, and add a mentor comment.
-12. Open `/admin` and show DB-backed metrics.
+2. Sign up from `/signup`, then show `/billing`.
+3. Register mock payment information and activate a plan.
+4. Create a new project from `/projects/new`.
+5. Open the demo workspace and walk through the left sidebar.
+6. Generate follow-up questions and save answers.
+7. Generate market research and show source cards, confidence badges, and AI assumption badges.
+8. Generate competitor matrix.
+9. Generate personas, BM Canvas, MVP features, and validation experiments.
+10. Generate business plan drafts, edit one section, and save it.
+11. Generate IR One-Pager and marketing copy.
+12. Export Markdown and DOCX from Export page and show version history.
+13. Create a mentor share link, open the read-only share page, and add a mentor comment.
+14. Open `/admin` and show DB-backed metrics.
 
 ## Notes
 
 - PDF export has a TODO interface only.
-- Authentication and authorization are intentionally simplified for demo delivery.
+- Authentication uses a simple httpOnly cookie session for demo delivery.
+- Billing uses a mock PG flow until business registration and live PG review are complete.
 - Mentor share pages are token-based and read-only except for mentor comments.
 - Market research from mock provider uses demo sources. Source-less insights are marked as AI assumptions.

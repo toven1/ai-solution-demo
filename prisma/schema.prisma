@@ -32,6 +32,7 @@ enum CreditLedgerType {
 model User {
   id             String          @id @default(cuid())
   email          String          @unique
+  passwordHash   String?
   name           String?
   organizationId String?
   organization   Organization?   @relation(fields: [organizationId], references: [id])
@@ -39,6 +40,9 @@ model User {
   mentorComments MentorComment[]
   usageLogs      UsageLog[]
   creditLedger   CreditLedger[]
+  sessions       UserSession[]
+  paymentMethods PaymentMethod[]
+  subscriptions  Subscription[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
@@ -415,4 +419,68 @@ model CreditLedger {
   @@index([userId])
   @@index([organizationId])
   @@index([projectId])
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model PaymentMethod {
+  id           String   @id @default(cuid())
+  userId       String
+  provider     String   @default("mock")
+  methodType   String   @default("card")
+  billingName  String
+  maskedNumber String
+  expiryMonth  String
+  expiryYear   String
+  isDefault    Boolean  @default(true)
+  metadata     Json?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Subscription {
+  id              String   @id @default(cuid())
+  userId          String
+  organizationId  String?
+  provider        String   @default("mock")
+  planKey         String
+  status          String   @default("trialing")
+  amountKrw       Int
+  billingInterval String   @default("monthly")
+  currentPeriodEnd DateTime?
+  paymentMethodId String?
+  metadata        Json?
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([organizationId])
+}
+
+model BillingEvent {
+  id              String   @id @default(cuid())
+  userId          String?
+  organizationId  String?
+  provider        String   @default("mock")
+  eventType       String
+  status          String
+  amountKrw       Int      @default(0)
+  metadata        Json?
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([organizationId])
 }

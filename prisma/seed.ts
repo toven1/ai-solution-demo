@@ -1,5 +1,7 @@
 import { PrismaClient, ProjectStage, UsageEventType, CreditLedgerType } from "@prisma/client";
 
+import { hashPassword } from "../lib/auth/password";
+
 const prisma = new PrismaClient();
 
 const templates = [
@@ -116,12 +118,14 @@ async function main() {
     where: { email: "demo@founderos.ai" },
     update: {
       name: "Demo Founder",
-      organizationId: organization.id
+      organizationId: organization.id,
+      passwordHash: hashPassword("founderos-demo-1234")
     },
     create: {
       email: "demo@founderos.ai",
       name: "Demo Founder",
-      organizationId: organization.id
+      organizationId: organization.id,
+      passwordHash: hashPassword("founderos-demo-1234")
     }
   });
 
@@ -282,7 +286,85 @@ async function main() {
     });
   }
 
-  console.log("Seed complete: 8 industry templates and demo project created.");
+  const existingPaymentMethod = await prisma.paymentMethod.findFirst({
+    where: {
+      userId: user.id,
+      provider: "mock-pg",
+      maskedNumber: "**** **** **** 4242"
+    }
+  });
+
+  const paymentMethod =
+    existingPaymentMethod ??
+    (await prisma.paymentMethod.create({
+      data: {
+        userId: user.id,
+        provider: "mock-pg",
+        methodType: "card",
+        billingName: "Demo Founder",
+        maskedNumber: "**** **** **** 4242",
+        expiryMonth: "12",
+        expiryYear: "2030",
+        isDefault: true,
+        metadata: {
+          demo: true,
+          pgStatus: "business_registration_required",
+          storedRawCard: false
+        }
+      }
+    }));
+
+  await prisma.subscription.upsert({
+    where: { id: "demo-subscription-pro" },
+    update: {
+      paymentMethodId: paymentMethod.id,
+      status: "active_mock",
+      amountKrw: 79000
+    },
+    create: {
+      id: "demo-subscription-pro",
+      userId: user.id,
+      organizationId: organization.id,
+      provider: "mock-pg",
+      planKey: "pro",
+      status: "active_mock",
+      amountKrw: 79000,
+      billingInterval: "monthly",
+      currentPeriodEnd: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+      paymentMethodId: paymentMethod.id,
+      metadata: {
+        demo: true,
+        note: "사업자 등록 및 PG 심사 전까지 mock 결제 상태로 시연합니다."
+      }
+    }
+  });
+
+  const existingBillingEvent = await prisma.billingEvent.findFirst({
+    where: {
+      userId: user.id,
+      provider: "mock-pg",
+      eventType: "seed-demo-subscription"
+    }
+  });
+
+  if (!existingBillingEvent) {
+    await prisma.billingEvent.create({
+      data: {
+        userId: user.id,
+        organizationId: organization.id,
+        provider: "mock-pg",
+        eventType: "seed-demo-subscription",
+        status: "success",
+        amountKrw: 79000,
+        metadata: {
+          planKey: "pro",
+          businessRegistrationRequired: true
+        }
+      }
+    });
+  }
+
+  console.log("Seed complete: templates, demo project, demo login, and mock billing data created.");
 }
 
 main()
