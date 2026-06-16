@@ -51,10 +51,17 @@ API keys are used only in server-side provider files. They must not be prefixed 
 
 Billing behavior:
 
-- `BILLING_PROVIDER=mock` and `PG_PROVIDER=mock` use the built-in mock PG flow.
-- The demo stores only masked card information, never raw card numbers.
+- `BILLING_PROVIDER=mock` blocks live checkout and shows the missing PG requirements.
+- The app must not collect raw card numbers in production. Real card entry should happen inside the PG checkout/billing-key flow.
 - Real PG integration should be enabled after business registration, PG review, terms/privacy/refund policy pages, and settlement account preparation.
 - Suggested Korean PG options for later integration are Toss Payments or PortOne. The current code is intentionally provider-ready but not connected to a live PG account.
+- Set `BILLING_PROVIDER=live` and `PG_PROVIDER=toss` or `PG_PROVIDER=portone` only when live credentials are ready.
+
+OpenAI and research keys:
+
+- One `OPENAI_API_KEY` is enough for the AI generation provider.
+- Market research can keep using `MockResearchProvider`, or use a separate Tavily/Serper key if live web research is needed.
+- PG credentials are separate from OpenAI credentials.
 
 ## Setup
 
@@ -114,6 +121,11 @@ Demo login after seed:
 email: demo@founderos.ai
 password: founderos-demo-1234
 ```
+
+Optional test admin:
+
+Set `TEST_ADMIN_EMAIL` and `TEST_ADMIN_PASSWORD` in local `.env`, then run `npm run seed`.
+Those values are intentionally not documented in git-tracked files.
 
 Useful routes:
 

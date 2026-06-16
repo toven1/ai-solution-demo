@@ -129,6 +129,58 @@ async function main() {
     }
   });
 
+  if (process.env.TEST_ADMIN_EMAIL && process.env.TEST_ADMIN_PASSWORD) {
+    const adminOrganization = await prisma.organization.upsert({
+      where: { id: "test-admin-org" },
+      update: { name: "FounderOS Internal Admin" },
+      create: {
+        id: "test-admin-org",
+        name: "FounderOS Internal Admin"
+      }
+    });
+
+    const adminUser = await prisma.user.upsert({
+      where: { email: process.env.TEST_ADMIN_EMAIL },
+      update: {
+        name: "Test Admin",
+        organizationId: adminOrganization.id,
+        passwordHash: hashPassword(process.env.TEST_ADMIN_PASSWORD),
+        role: "SUPER_ADMIN",
+        isSuperAdmin: true,
+        hasUnlimitedCredits: true
+      },
+      create: {
+        email: process.env.TEST_ADMIN_EMAIL,
+        name: "Test Admin",
+        organizationId: adminOrganization.id,
+        passwordHash: hashPassword(process.env.TEST_ADMIN_PASSWORD),
+        role: "SUPER_ADMIN",
+        isSuperAdmin: true,
+        hasUnlimitedCredits: true
+      }
+    });
+
+    const existingAdminCredit = await prisma.creditLedger.findFirst({
+      where: {
+        userId: adminUser.id,
+        reason: "Unlimited internal admin credits"
+      }
+    });
+
+    if (!existingAdminCredit) {
+      await prisma.creditLedger.create({
+        data: {
+          userId: adminUser.id,
+          organizationId: adminOrganization.id,
+          type: CreditLedgerType.GRANT,
+          amount: 2147483647,
+          balanceAfter: 2147483647,
+          reason: "Unlimited internal admin credits"
+        }
+      });
+    }
+  }
+
   for (const template of templates) {
     await prisma.industryTemplate.upsert({
       where: { industryName: template.industryName },

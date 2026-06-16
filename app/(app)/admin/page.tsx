@@ -1,6 +1,8 @@
 import { AlertTriangle, BarChart3, Coins, FileText, Users } from "lucide-react";
+import { redirect } from "next/navigation";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getCurrentUser } from "@/lib/auth/session";
 import { getAdminMetrics } from "@/lib/admin/metrics";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +20,21 @@ function MetricCard({ title, value, description }: { title: string; value: strin
 }
 
 export default async function AdminDashboardPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  if (!user.isSuperAdmin && user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") {
+    return (
+      <main className="mx-auto max-w-3xl px-5 py-10">
+        <Card className="border-red-200">
+          <CardHeader>
+            <CardTitle>접근 권한이 없습니다</CardTitle>
+            <CardDescription>관리자 대시보드는 admin 권한 계정만 접근할 수 있습니다.</CardDescription>
+          </CardHeader>
+        </Card>
+      </main>
+    );
+  }
+
   const metrics = await getAdminMetrics();
 
   return (

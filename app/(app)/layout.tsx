@@ -23,6 +23,11 @@ export default async function AppLayout({ children }: Readonly<{ children: React
             <Link href="/billing" className="hover:text-slate-950">
               Billing
             </Link>
+            {user?.isSuperAdmin || user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" ? (
+              <Link href="/admin" className="hover:text-slate-950">
+                Admin
+              </Link>
+            ) : null}
             {user ? (
               <>
                 <span className="rounded-md bg-teal-50 px-2 py-1 text-xs font-medium text-teal-800">{user.email}</span>

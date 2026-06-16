@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, CreditCard, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, CreditCard, ShieldCheck, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import type { BillingRuntimeConfig } from "@/lib/billing/config";
 
 type Plan = {
   key: string;
@@ -19,6 +18,7 @@ type Plan = {
 
 type PaymentMethod = {
   id: string;
+  provider: string;
   billingName: string;
   maskedNumber: string;
   expiryMonth: string;
@@ -27,6 +27,7 @@ type PaymentMethod = {
 
 type Subscription = {
   id: string;
+  provider: string;
   planKey: string;
   status: string;
   amountKrw: number;
@@ -37,41 +38,17 @@ type ToastValue = { type: "success" | "error"; message: string } | null;
 export function BillingClient({
   plans,
   initialPaymentMethods,
-  initialSubscriptions
+  initialSubscriptions,
+  billingConfig
 }: {
   plans: Plan[];
   initialPaymentMethods: PaymentMethod[];
   initialSubscriptions: Subscription[];
+  billingConfig: BillingRuntimeConfig;
 }) {
   const [toast, setToast] = useState<ToastValue>(null);
   const [busy, setBusy] = useState<string | null>(null);
-  const [paymentMethods, setPaymentMethods] = useState(initialPaymentMethods);
   const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
-  const [paymentForm, setPaymentForm] = useState({
-    billingName: "",
-    cardNumber: "",
-    expiryMonth: "",
-    expiryYear: ""
-  });
-
-  async function savePaymentMethod() {
-    setBusy("payment");
-    const res = await fetch("/api/billing/payment-method", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(paymentForm)
-    });
-    setBusy(null);
-    if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      setToast({ type: "error", message: data?.error ?? "결제정보 등록에 실패했습니다." });
-      return;
-    }
-    const data = await res.json();
-    setPaymentMethods([data.paymentMethod]);
-    setPaymentForm({ billingName: "", cardNumber: "", expiryMonth: "", expiryYear: "" });
-    setToast({ type: "success", message: "결제정보를 등록했습니다. 실제 카드번호는 저장하지 않습니다." });
-  }
 
   async function checkout(planKey: string) {
     setBusy(planKey);
@@ -81,14 +58,13 @@ export function BillingClient({
       body: JSON.stringify({ planKey })
     });
     setBusy(null);
+    const data = await res.json().catch(() => null);
     if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      setToast({ type: "error", message: data?.error ?? "결제 처리에 실패했습니다." });
+      setToast({ type: "error", message: data?.error ?? "결제 준비 상태를 확인해주세요." });
       return;
     }
-    const data = await res.json();
     setSubscriptions((current) => [data.subscription, ...current]);
-    setToast({ type: "success", message: "Mock PG로 구독 상태를 생성했습니다." });
+    setToast({ type: "success", message: "구독이 생성되었습니다." });
   }
 
   return (
@@ -100,39 +76,58 @@ export function BillingClient({
         </div>
       ) : null}
 
+      <Card className={billingConfig.isLiveReady ? "border-teal-200" : "border-amber-200 bg-amber-50/50"}>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            {billingConfig.isLiveReady ? <ShieldCheck className="h-5 w-5 text-teal-700" /> : <AlertTriangle className="h-5 w-5 text-amber-700" />}
+            결제 운영 상태
+          </CardTitle>
+          <CardDescription>{billingConfig.commercialNotice}</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 text-sm">
+          <div className="grid gap-3 md:grid-cols-3">
+            <StatusItem label="Billing mode" value={billingConfig.mode} />
+            <StatusItem label="PG provider" value={billingConfig.provider} />
+            <StatusItem label="Live ready" value={billingConfig.isLiveReady ? "ready" : "blocked"} />
+          </div>
+          {billingConfig.missingRequirements.length > 0 ? (
+            <div className="rounded-md border border-amber-200 bg-white p-3">
+              <div className="font-medium text-amber-900">실결제 활성화 전 필요한 설정</div>
+              <ul className="mt-2 grid gap-1 text-amber-800">
+                {billingConfig.missingRequirements.map((item) => (
+                  <li key={item}>- {item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <div className="rounded-md border border-teal-200 bg-white p-3 text-teal-800">PG live 설정이 완료되었습니다. 실제 결제창 연동 경로를 사용할 수 있습니다.</div>
+          )}
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
-          <CardTitle>결제정보 등록</CardTitle>
-          <CardDescription>사업자등록 전이므로 실제 PG 승인 대신 mock 결제수단으로 저장합니다. 카드번호 원문은 저장하지 않습니다.</CardDescription>
+          <CardTitle>결제수단</CardTitle>
+          <CardDescription>
+            상업용 운영에서는 카드번호를 FounderOS 서버에 직접 저장하지 않습니다. PG 결제창 또는 billing key 발급 결과만 저장합니다.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4">
-          <div className="grid gap-4 md:grid-cols-4">
-            <Field label="카드 명의">
-              <Input value={paymentForm.billingName} onChange={(event) => setPaymentForm((current) => ({ ...current, billingName: event.target.value }))} />
-            </Field>
-            <Field label="카드번호">
-              <Input value={paymentForm.cardNumber} onChange={(event) => setPaymentForm((current) => ({ ...current, cardNumber: event.target.value }))} placeholder="4242 4242 4242 4242" />
-            </Field>
-            <Field label="월">
-              <Input value={paymentForm.expiryMonth} onChange={(event) => setPaymentForm((current) => ({ ...current, expiryMonth: event.target.value }))} placeholder="12" />
-            </Field>
-            <Field label="연도">
-              <Input value={paymentForm.expiryYear} onChange={(event) => setPaymentForm((current) => ({ ...current, expiryYear: event.target.value }))} placeholder="2030" />
-            </Field>
-          </div>
-          <Button onClick={savePaymentMethod} disabled={busy === "payment"} className="w-fit">
-            <CreditCard className="h-4 w-4" />
-            결제정보 저장
-          </Button>
-          {paymentMethods.length ? (
-            <div className="grid gap-2">
-              {paymentMethods.map((method) => (
-                <div key={method.id} className="rounded-md bg-slate-50 p-3 text-sm text-slate-700">
-                  {method.billingName} · {method.maskedNumber} · {method.expiryMonth}/{method.expiryYear}
+        <CardContent className="grid gap-3">
+          {initialPaymentMethods.length ? (
+            initialPaymentMethods.map((method) => (
+              <div key={method.id} className="flex items-center justify-between rounded-md border bg-white p-3 text-sm">
+                <div>
+                  <div className="font-medium text-slate-950">{method.billingName}</div>
+                  <div className="mt-1 text-slate-500">
+                    {method.provider} · {method.maskedNumber} · {method.expiryMonth}/{method.expiryYear}
+                  </div>
                 </div>
-              ))}
-            </div>
-          ) : null}
+                <CreditCard className="h-4 w-4 text-slate-400" />
+              </div>
+            ))
+          ) : (
+            <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-500">등록된 PG 결제수단이 없습니다.</div>
+          )}
         </CardContent>
       </Card>
 
@@ -154,8 +149,8 @@ export function BillingClient({
                   <li key={feature}>- {feature}</li>
                 ))}
               </ul>
-              <Button onClick={() => checkout(plan.key)} disabled={Boolean(busy)}>
-                {busy === plan.key ? "처리 중..." : "이 요금제 선택"}
+              <Button onClick={() => checkout(plan.key)} disabled={!billingConfig.isLiveReady || Boolean(busy)}>
+                {billingConfig.isLiveReady ? (busy === plan.key ? "처리 중..." : "결제창으로 이동") : "PG 준비 후 활성화"}
               </Button>
             </CardContent>
           </Card>
@@ -173,7 +168,9 @@ export function BillingClient({
             subscriptions.map((subscription) => (
               <div key={subscription.id} className="rounded-md border p-3 text-sm">
                 <div className="font-medium">{subscription.planKey} · {subscription.status}</div>
-                <div className="mt-1 text-slate-500">{subscription.amountKrw.toLocaleString("ko-KR")}원 / 월</div>
+                <div className="mt-1 text-slate-500">
+                  {subscription.provider} · {subscription.amountKrw.toLocaleString("ko-KR")}원 / 월
+                </div>
               </div>
             ))
           )}
@@ -183,11 +180,11 @@ export function BillingClient({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function StatusItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="grid gap-2">
-      <Label>{label}</Label>
-      {children}
+    <div className="rounded-md border bg-white p-3">
+      <div className="text-xs font-medium uppercase text-slate-500">{label}</div>
+      <div className="mt-1 font-semibold text-slate-950">{value}</div>
     </div>
   );
 }

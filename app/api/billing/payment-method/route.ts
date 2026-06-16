@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getCurrentOrDemoUser } from "@/lib/auth/session";
+import { getBillingConfig } from "@/lib/billing/config";
 import { prisma } from "@/lib/db";
 
 const schema = z.object({
@@ -17,6 +18,14 @@ export async function POST(request: Request) {
 
   const user = await getCurrentOrDemoUser();
   if (!user) return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+
+  const billingConfig = getBillingConfig();
+  if (billingConfig.mode === "live") {
+    return NextResponse.json(
+      { error: "운영 모드에서는 카드번호를 서버 API로 직접 받지 않습니다. PG 결제창 또는 billing key callback을 사용해야 합니다." },
+      { status: 409 }
+    );
+  }
 
   const digits = parsed.data.cardNumber.replace(/\D/g, "");
   const maskedNumber = `**** **** **** ${digits.slice(-4)}`;

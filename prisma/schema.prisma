@@ -29,11 +29,20 @@ enum CreditLedgerType {
   ADJUSTMENT
 }
 
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
 model User {
   id             String          @id @default(cuid())
   email          String          @unique
   passwordHash   String?
   name           String?
+  role           UserRole        @default(USER)
+  isSuperAdmin   Boolean         @default(false)
+  hasUnlimitedCredits Boolean    @default(false)
   organizationId String?
   organization   Organization?   @relation(fields: [organizationId], references: [id])
   projects       Project[]
