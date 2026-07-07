@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
+// 디자인원칙.md의 "화이트 블루" 플랫 라이트 토큰만 사용한다.
 const config: Config = {
-  darkMode: ["class"],
   content: [
     "./app/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -9,42 +9,55 @@ const config: Config = {
     "./server/**/*.{ts,tsx}"
   ],
   theme: {
+    colors: {
+      transparent: "transparent",
+      current: "currentColor",
+      white: "#ffffff",
+      black: "#000000",
+      bg: "#ffffff",
+      bgSoft: "#f7f7f8",
+      surface: "#f6f6f7",
+      surfaceStrong: "#ececee",
+      border: "#e4e4e7",
+      borderStrong: "#cdcdd3",
+      text: "#18181b",
+      textSub: "#55555e",
+      textFaint: "#9a9aa3",
+      accent: "#2563eb",
+      accentSoft: "rgba(37,99,235,0.10)",
+      accentStrong: "#1e40af",
+      accentHover: "#1d4ed8",
+      card: "#ffffff",
+      cardBorder: "#e4e4e7",
+      onAccent: "#ffffff",
+      success: "#1a7f37",
+      warning: "#9a6700",
+      danger: "#cf222e"
+    },
     extend: {
-      colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))"
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))"
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))"
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))"
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))"
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))"
-        }
+      fontFamily: {
+        sans: [
+          "Pretendard Variable",
+          "Pretendard",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "system-ui",
+          "Segoe UI",
+          "Apple SD Gothic Neo",
+          "Noto Sans KR",
+          "sans-serif"
+        ]
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)"
+        sm: "4px",
+        DEFAULT: "6px",
+        md: "6px",
+        lg: "8px",
+        xl: "12px"
+      },
+      boxShadow: {
+        card: "0 1px 3px rgba(15,23,42,0.08)",
+        mock: "0 18px 48px rgba(15,23,42,0.14)"
       }
     }
   },

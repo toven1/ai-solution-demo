@@ -23,8 +23,16 @@ export async function createMentorShare(projectId: string) {
 }
 
 export async function setMentorShareActive(shareId: string, projectId: string, active: boolean) {
+  const share = await prisma.mentorShare.findFirst({
+    where: { id: shareId, projectId }
+  });
+
+  if (!share) {
+    throw new Error("SHARE_NOT_FOUND");
+  }
+
   return prisma.mentorShare.update({
-    where: { id: shareId },
+    where: { id: share.id },
     data: {
       revokedAt: active ? null : new Date()
     }

@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { getCurrentOrDemoUser } from "@/lib/auth/session";
 import { getBillingConfig } from "@/lib/billing/config";
-import { getPlan } from "@/lib/billing/plans";
+import { billingPlans } from "@/lib/billing/plans";
 import { prisma } from "@/lib/db";
 
 const schema = z.object({
@@ -17,7 +17,8 @@ export async function POST(request: Request) {
   const user = await getCurrentOrDemoUser();
   if (!user) return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
 
-  const plan = getPlan(parsed.data.planKey);
+  const plan = billingPlans.find((item) => item.key === parsed.data.planKey);
+  if (!plan) return NextResponse.json({ error: "존재하지 않는 요금제입니다." }, { status: 400 });
   const billingConfig = getBillingConfig();
   if (!billingConfig.isLiveReady) {
     await prisma.billingEvent.create({

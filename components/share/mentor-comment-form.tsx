@@ -14,9 +14,9 @@ type ToastValue = { type: "success" | "error"; message: string } | null;
 function Toast({ toast }: { toast: ToastValue }) {
   if (!toast) return null;
   return (
-    <div className="flex items-center gap-2 rounded-md border bg-white p-3 text-sm shadow-sm">
-      {toast.type === "success" ? <CheckCircle2 className="h-4 w-4 text-teal-700" /> : <XCircle className="h-4 w-4 text-red-600" />}
-      <span className={toast.type === "success" ? "text-teal-900" : "text-red-700"}>{toast.message}</span>
+    <div className="flex items-center gap-2 rounded-md border border-cardBorder bg-card p-3 text-sm shadow-card">
+      {toast.type === "success" ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-danger" />}
+      <span className="text-text">{toast.message}</span>
     </div>
   );
 }
@@ -50,8 +50,8 @@ export function MentorCommentForm({ token }: { token: string }) {
   }
 
   return (
-    <div className="grid gap-3 rounded-md border bg-white p-4">
-      <div className="font-medium text-slate-950">멘토 코멘트</div>
+    <div className="grid gap-3 rounded-lg border border-cardBorder bg-card p-4 shadow-card">
+      <div className="font-medium text-text">멘토 코멘트</div>
       <Toast toast={toast} />
       <div className="grid gap-3 md:grid-cols-3">
         <Input value={form.authorName} onChange={(event) => setForm((current) => ({ ...current, authorName: event.target.value }))} placeholder="이름" />

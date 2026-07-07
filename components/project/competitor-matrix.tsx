@@ -41,7 +41,8 @@ export function CompetitorMatrix({ projectId, competitors }: { projectId: string
     setIsGenerating(false);
 
     if (!response.ok) {
-      setToast({ type: "error", message: "경쟁사 분석 생성에 실패했습니다." });
+      const data = await response.json().catch(() => null);
+      setToast({ type: "error", message: data?.error ?? "경쟁사 분석 생성에 실패했습니다." });
       return;
     }
 
@@ -69,7 +70,7 @@ export function CompetitorMatrix({ projectId, competitors }: { projectId: string
           <div className="overflow-x-auto">
             <table className="min-w-[980px] w-full border-collapse text-sm">
               <thead>
-                <tr className="border-b bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+                <tr className="border-b bg-surface text-left text-xs uppercase tracking-wide text-textFaint">
                   <th className="p-3">경쟁사명</th>
                   <th className="p-3">웹사이트</th>
                   <th className="p-3">타깃 고객</th>
@@ -83,11 +84,11 @@ export function CompetitorMatrix({ projectId, competitors }: { projectId: string
               </thead>
               <tbody>
                 {competitors.map((competitor) => (
-                  <tr key={competitor.id} className="border-b align-top">
-                    <td className="p-3 font-medium">{competitor.name}</td>
+                  <tr key={competitor.id} className="border-b align-top text-textSub">
+                    <td className="p-3 font-medium text-text">{competitor.name}</td>
                     <td className="p-3">
                       {competitor.url ? (
-                        <a href={competitor.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-teal-800 hover:underline">
+                        <a href={competitor.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-accent hover:underline">
                           열기 <ExternalLink className="h-3 w-3" />
                         </a>
                       ) : (
@@ -102,7 +103,7 @@ export function CompetitorMatrix({ projectId, competitors }: { projectId: string
                     <td className="p-3">{competitor.differentiation}</td>
                     <td className="p-3">
                       {competitor.sourceUrl ? (
-                        <a href={competitor.sourceUrl} target="_blank" rel="noreferrer" className="text-teal-800 hover:underline">
+                        <a href={competitor.sourceUrl} target="_blank" rel="noreferrer" className="text-accent hover:underline">
                           {competitor.sourceTitle ?? "데모 출처"}
                         </a>
                       ) : (
@@ -122,9 +123,9 @@ export function CompetitorMatrix({ projectId, competitors }: { projectId: string
 
 function Toast({ type, message }: { type: "success" | "error"; message: string }) {
   return (
-    <div className="mb-4 flex items-center gap-2 rounded-md border bg-white p-3 text-sm shadow-sm">
-      {type === "success" ? <CheckCircle2 className="h-4 w-4 text-teal-700" /> : <XCircle className="h-4 w-4 text-red-600" />}
-      <span className={type === "success" ? "text-teal-900" : "text-red-700"}>{message}</span>
+    <div className="mb-4 flex items-center gap-2 rounded-md border border-cardBorder bg-card p-3 text-sm shadow-card">
+      {type === "success" ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-danger" />}
+      <span className="text-text">{message}</span>
     </div>
   );
 }

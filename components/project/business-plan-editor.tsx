@@ -49,7 +49,8 @@ export function BusinessPlanEditor({ projectId, sections }: { projectId: string;
     setBusyKey(null);
 
     if (!response.ok) {
-      setToast({ type: "error", message: "전체 초안 생성에 실패했습니다." });
+      const data = await response.json().catch(() => null);
+      setToast({ type: "error", message: data?.error ?? "전체 초안 생성에 실패했습니다." });
       return;
     }
 
@@ -63,7 +64,8 @@ export function BusinessPlanEditor({ projectId, sections }: { projectId: string;
     setBusyKey(null);
 
     if (!response.ok) {
-      setToast({ type: "error", message: "문항 초안 생성에 실패했습니다." });
+      const data = await response.json().catch(() => null);
+      setToast({ type: "error", message: data?.error ?? "문항 초안 생성에 실패했습니다." });
       return;
     }
 
@@ -108,7 +110,7 @@ export function BusinessPlanEditor({ projectId, sections }: { projectId: string;
         </CardHeader>
         <CardContent>
           {toast ? <Toast type={toast.type} message={toast.message} /> : null}
-          <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-700">
+          <div className="rounded-md bg-surface p-3 text-sm text-textSub">
             완료 문항 {completedCount}/{sections.length}
           </div>
         </CardContent>
@@ -128,20 +130,20 @@ export function BusinessPlanEditor({ projectId, sections }: { projectId: string;
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <ConfidenceBadge level={confidence} />
-                  <span className="text-xs text-slate-500">{section.completenessScore}%</span>
+                  <span className="text-xs text-textFaint">{section.completenessScore}%</span>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="grid gap-4">
-              <div className="rounded-md border bg-slate-50 p-3">
-                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-500">AI 초안</div>
-                <p className="whitespace-pre-wrap text-sm leading-6 text-slate-700">
+              <div className="rounded-md bg-surface p-3">
+                <div className="mb-2 text-xs font-medium uppercase tracking-wide text-textFaint">AI 초안</div>
+                <p className="whitespace-pre-wrap text-sm leading-6 text-textSub">
                   {hasDraft ? section.aiDraft : "아직 생성된 AI 초안이 없습니다."}
                 </p>
               </div>
 
               <div>
-                <div className="mb-2 text-sm font-medium">사용자 수정본</div>
+                <div className="mb-2 text-sm font-medium text-text">사용자 수정본</div>
                 <Textarea
                   className="min-h-40"
                   value={contents[section.id] ?? ""}
@@ -152,7 +154,7 @@ export function BusinessPlanEditor({ projectId, sections }: { projectId: string;
 
               <div className="flex flex-wrap justify-end gap-2">
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => generateSection(section.id)}
                   disabled={busyKey !== null}
                 >
@@ -174,9 +176,9 @@ export function BusinessPlanEditor({ projectId, sections }: { projectId: string;
 
 function Toast({ type, message }: { type: "success" | "error"; message: string }) {
   return (
-    <div className="mb-4 flex items-center gap-2 rounded-md border bg-white p-3 text-sm shadow-sm">
-      {type === "success" ? <CheckCircle2 className="h-4 w-4 text-teal-700" /> : <XCircle className="h-4 w-4 text-red-600" />}
-      <span className={type === "success" ? "text-teal-900" : "text-red-700"}>{message}</span>
+    <div className="mb-4 flex items-center gap-2 rounded-md border border-cardBorder bg-card p-3 text-sm shadow-card">
+      {type === "success" ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-danger" />}
+      <span className="text-text">{message}</span>
     </div>
   );
 }

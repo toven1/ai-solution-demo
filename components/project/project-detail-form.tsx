@@ -82,16 +82,16 @@ export function ProjectDetailForm({ project, industries }: ProjectDetailFormProp
           <CardDescription>AI 질문과 산출물 생성을 위한 기준 정보입니다.</CardDescription>
         </div>
         {!isEditing ? (
-          <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+          <Button variant="secondary" size="sm" onClick={() => setIsEditing(true)}>
             수정
           </Button>
         ) : null}
       </CardHeader>
       <CardContent>
         {toast ? (
-          <div className="mb-4 flex items-center gap-2 rounded-md border bg-white p-3 text-sm shadow-sm">
-            {toast.type === "success" ? <CheckCircle2 className="h-4 w-4 text-teal-700" /> : <XCircle className="h-4 w-4 text-red-600" />}
-            <span className={toast.type === "success" ? "text-teal-900" : "text-red-700"}>{toast.message}</span>
+          <div className="mb-4 flex items-center gap-2 rounded-md border border-cardBorder bg-card p-3 text-sm shadow-card">
+            {toast.type === "success" ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-danger" />}
+            <span className="text-text">{toast.message}</span>
           </div>
         ) : null}
 
@@ -135,7 +135,7 @@ export function ProjectDetailForm({ project, industries }: ProjectDetailFormProp
               <Textarea {...register("mainConcern")} />
             </Field>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={cancelEdit} disabled={isSubmitting}>
+              <Button type="button" variant="secondary" onClick={cancelEdit} disabled={isSubmitting}>
                 취소
               </Button>
               <Button type="submit" disabled={isSubmitting}>
@@ -161,16 +161,16 @@ function Field({ label, error, children }: { label: string; error?: string; chil
     <div className="grid gap-2">
       <Label>{label}</Label>
       {children}
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
     </div>
   );
 }
 
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-slate-100 p-3">
-      <div className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="leading-6 text-slate-800">{value}</div>
+    <div className="rounded-md bg-surface p-3">
+      <div className="mb-1 text-xs font-medium uppercase tracking-wide text-textFaint">{label}</div>
+      <div className="leading-6 text-textSub">{value}</div>
     </div>
   );
 }

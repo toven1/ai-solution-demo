@@ -37,11 +37,23 @@ export async function getAdminMetrics() {
       })
     ]);
 
-  const estimatedCostCents = await prisma.usageLog.aggregate({
-    _sum: { estimatedCostCents: true, estimatedTokens: true }
-  });
+  const [estimatedCostCents, creditsGrantedSum, creditsSpentSum] = await Promise.all([
+    prisma.usageLog.aggregate({
+      _sum: { estimatedCostCents: true, estimatedTokens: true }
+    }),
+    prisma.creditLedger.aggregate({
+      where: { amount: { gt: 0 } },
+      _sum: { amount: true }
+    }),
+    prisma.creditLedger.aggregate({
+      where: { amount: { lt: 0 } },
+      _sum: { amount: true }
+    })
+  ]);
 
   return {
+    creditsGranted: creditsGrantedSum._sum.amount ?? 0,
+    creditsSpent: Math.abs(creditsSpentSum._sum.amount ?? 0),
     users,
     projects,
     documents,

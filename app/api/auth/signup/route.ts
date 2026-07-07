@@ -17,25 +17,27 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: "회원가입 정보를 확인해주세요." }, { status: 400 });
 
   try {
-    const organization = await prisma.organization.create({
-      data: { name: parsed.data.organizationName }
-    });
-    const user = await prisma.user.create({
-      data: {
-        email: parsed.data.email.toLowerCase(),
-        name: parsed.data.name,
-        passwordHash: hashPassword(parsed.data.password),
-        organizationId: organization.id,
-        creditLedger: {
-          create: {
-            organizationId: organization.id,
-            type: "GRANT",
-            amount: 300,
-            balanceAfter: 300,
-            reason: "Signup trial credits"
+    const user = await prisma.$transaction(async (tx) => {
+      const organization = await tx.organization.create({
+        data: { name: parsed.data.organizationName }
+      });
+      return tx.user.create({
+        data: {
+          email: parsed.data.email.toLowerCase(),
+          name: parsed.data.name,
+          passwordHash: hashPassword(parsed.data.password),
+          organizationId: organization.id,
+          creditLedger: {
+            create: {
+              organizationId: organization.id,
+              type: "GRANT",
+              amount: 300,
+              balanceAfter: 300,
+              reason: "Signup trial credits"
+            }
           }
         }
-      }
+      });
     });
 
     await createSession(user.id);

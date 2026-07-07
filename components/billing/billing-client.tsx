@@ -70,16 +70,16 @@ export function BillingClient({
   return (
     <div className="grid gap-5">
       {toast ? (
-        <div className="flex items-center gap-2 rounded-md border bg-white p-3 text-sm shadow-sm">
-          {toast.type === "success" ? <CheckCircle2 className="h-4 w-4 text-teal-700" /> : <XCircle className="h-4 w-4 text-red-600" />}
-          <span className={toast.type === "success" ? "text-teal-900" : "text-red-700"}>{toast.message}</span>
+        <div className="flex items-center gap-2 rounded-md border border-cardBorder bg-card p-3 text-sm shadow-card">
+          {toast.type === "success" ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-danger" />}
+          <span className="text-text">{toast.message}</span>
         </div>
       ) : null}
 
-      <Card className={billingConfig.isLiveReady ? "border-teal-200" : "border-amber-200 bg-amber-50/50"}>
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            {billingConfig.isLiveReady ? <ShieldCheck className="h-5 w-5 text-teal-700" /> : <AlertTriangle className="h-5 w-5 text-amber-700" />}
+            {billingConfig.isLiveReady ? <ShieldCheck className="h-5 w-5 text-success" /> : <AlertTriangle className="h-5 w-5 text-warning" />}
             결제 운영 상태
           </CardTitle>
           <CardDescription>{billingConfig.commercialNotice}</CardDescription>
@@ -91,16 +91,16 @@ export function BillingClient({
             <StatusItem label="Live ready" value={billingConfig.isLiveReady ? "ready" : "blocked"} />
           </div>
           {billingConfig.missingRequirements.length > 0 ? (
-            <div className="rounded-md border border-amber-200 bg-white p-3">
-              <div className="font-medium text-amber-900">실결제 활성화 전 필요한 설정</div>
-              <ul className="mt-2 grid gap-1 text-amber-800">
+            <div className="rounded-md bg-surface p-3">
+              <div className="font-medium text-warning">실결제 활성화 전 필요한 설정</div>
+              <ul className="mt-2 grid gap-1 text-textSub">
                 {billingConfig.missingRequirements.map((item) => (
                   <li key={item}>- {item}</li>
                 ))}
               </ul>
             </div>
           ) : (
-            <div className="rounded-md border border-teal-200 bg-white p-3 text-teal-800">PG live 설정이 완료되었습니다. 실제 결제창 연동 경로를 사용할 수 있습니다.</div>
+            <div className="rounded-md bg-surface p-3 text-success">PG live 설정이 완료되었습니다. 실제 결제창 연동 경로를 사용할 수 있습니다.</div>
           )}
         </CardContent>
       </Card>
@@ -115,18 +115,18 @@ export function BillingClient({
         <CardContent className="grid gap-3">
           {initialPaymentMethods.length ? (
             initialPaymentMethods.map((method) => (
-              <div key={method.id} className="flex items-center justify-between rounded-md border bg-white p-3 text-sm">
+              <div key={method.id} className="flex items-center justify-between rounded-md border border-border p-3 text-sm">
                 <div>
-                  <div className="font-medium text-slate-950">{method.billingName}</div>
-                  <div className="mt-1 text-slate-500">
+                  <div className="font-medium text-text">{method.billingName}</div>
+                  <div className="mt-1 text-textFaint">
                     {method.provider} · {method.maskedNumber} · {method.expiryMonth}/{method.expiryYear}
                   </div>
                 </div>
-                <CreditCard className="h-4 w-4 text-slate-400" />
+                <CreditCard className="h-4 w-4 text-textFaint" />
               </div>
             ))
           ) : (
-            <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-500">등록된 PG 결제수단이 없습니다.</div>
+            <div className="rounded-md bg-surface p-3 text-sm text-textFaint">등록된 PG 결제수단이 없습니다.</div>
           )}
         </CardContent>
       </Card>
@@ -140,11 +140,11 @@ export function BillingClient({
             </CardHeader>
             <CardContent className="grid gap-4">
               <div>
-                <span className="text-3xl font-semibold">{plan.priceKrw.toLocaleString("ko-KR")}원</span>
-                <span className="text-sm text-slate-500"> / 월</span>
+                <span className="text-3xl font-semibold text-text">{plan.priceKrw.toLocaleString("ko-KR")}원</span>
+                <span className="text-sm text-textFaint"> / 월</span>
               </div>
-              <div className="text-sm text-slate-600">월 {plan.credits.toLocaleString("ko-KR")} credits</div>
-              <ul className="grid gap-2 text-sm text-slate-700">
+              <div className="text-sm text-textSub">월 {plan.credits.toLocaleString("ko-KR")} credits</div>
+              <ul className="grid gap-2 text-sm text-textSub">
                 {plan.features.map((feature) => (
                   <li key={feature}>- {feature}</li>
                 ))}
@@ -163,12 +163,12 @@ export function BillingClient({
         </CardHeader>
         <CardContent className="grid gap-3">
           {subscriptions.length === 0 ? (
-            <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-500">아직 구독이 없습니다.</div>
+            <div className="rounded-md bg-surface p-3 text-sm text-textFaint">아직 구독이 없습니다.</div>
           ) : (
             subscriptions.map((subscription) => (
-              <div key={subscription.id} className="rounded-md border p-3 text-sm">
-                <div className="font-medium">{subscription.planKey} · {subscription.status}</div>
-                <div className="mt-1 text-slate-500">
+              <div key={subscription.id} className="rounded-md border border-border p-3 text-sm">
+                <div className="font-medium text-text">{subscription.planKey} · {subscription.status}</div>
+                <div className="mt-1 text-textFaint">
                   {subscription.provider} · {subscription.amountKrw.toLocaleString("ko-KR")}원 / 월
                 </div>
               </div>
@@ -182,9 +182,9 @@ export function BillingClient({
 
 function StatusItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border bg-white p-3">
-      <div className="text-xs font-medium uppercase text-slate-500">{label}</div>
-      <div className="mt-1 font-semibold text-slate-950">{value}</div>
+    <div className="rounded-md bg-surface p-3">
+      <div className="text-xs font-medium uppercase text-textFaint">{label}</div>
+      <div className="mt-1 font-semibold text-text">{value}</div>
     </div>
   );
 }

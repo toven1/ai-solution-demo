@@ -29,9 +29,9 @@ type ToastValue = { type: "success" | "error"; message: string } | null;
 function Toast({ toast }: { toast: ToastValue }) {
   if (!toast) return null;
   return (
-    <div className="flex items-center gap-2 rounded-md border bg-white p-3 text-sm shadow-sm">
-      {toast.type === "success" ? <CheckCircle2 className="h-4 w-4 text-teal-700" /> : <XCircle className="h-4 w-4 text-red-600" />}
-      <span className={toast.type === "success" ? "text-teal-900" : "text-red-700"}>{toast.message}</span>
+    <div className="flex items-center gap-2 rounded-md border border-cardBorder bg-card p-3 text-sm shadow-card">
+      {toast.type === "success" ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-danger" />}
+      <span className="text-text">{toast.message}</span>
     </div>
   );
 }
@@ -107,12 +107,12 @@ export function ExportPanel({ projectId, documents }: { projectId: string; docum
               {busy === "docx" ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
               DOCX 다운로드
             </Button>
-            <Button onClick={() => download("pdf")} disabled={Boolean(busy)} variant="outline" className="justify-start">
+            <Button onClick={() => download("pdf")} disabled={Boolean(busy)} variant="secondary" className="justify-start">
               <FileType className="h-4 w-4" />
               PDF TODO
             </Button>
           </div>
-          <div className="rounded-md border bg-slate-50 p-4 text-sm leading-6 text-slate-700">
+          <div className="rounded-md bg-surface p-4 text-sm leading-6 text-textSub">
             포함 항목: 프로젝트 개요, 아이디어 요약, 문제 정의, 시장조사 리포트, 근거 출처, 경쟁사 분석, 페르소나, BM Canvas, MVP 계획, 검증 실험, 사업계획서 초안, IR One-Pager, 랜딩페이지 카피, 광고 문구, 면책 문구
           </div>
         </CardContent>
@@ -128,19 +128,19 @@ export function ExportPanel({ projectId, documents }: { projectId: string; docum
             <EmptyState title="생성된 문서가 없습니다" description="Markdown 또는 DOCX 다운로드를 실행하면 문서와 버전이 저장됩니다." />
           ) : (
             exportDocuments.map((document) => (
-              <div key={document.id} className="rounded-md border p-4">
+              <div key={document.id} className="rounded-md border border-border p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <div className="font-medium text-slate-950">{labelForType(document.type)}</div>
-                    <div className="mt-1 text-xs text-slate-500">마지막 생성: {new Date(document.updatedAt).toLocaleString("ko-KR")}</div>
+                    <div className="font-medium text-text">{labelForType(document.type)}</div>
+                    <div className="mt-1 text-xs text-textFaint">마지막 생성: {new Date(document.updatedAt).toLocaleString("ko-KR")}</div>
                   </div>
-                  <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">{document.versions.length} versions</span>
+                  <span className="rounded-md bg-accentSoft px-2 py-1 text-xs font-medium text-accentStrong">{document.versions.length} versions</span>
                 </div>
                 <div className="mt-3 grid gap-2">
                   {document.versions.map((version) => (
-                    <div key={version.id} className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 text-sm">
+                    <div key={version.id} className="flex items-center justify-between rounded-md bg-surface px-3 py-2 text-sm text-textSub">
                       <span>v{version.version}</span>
-                      <span className="text-xs text-slate-500">{new Date(version.createdAt).toLocaleString("ko-KR")}</span>
+                      <span className="text-xs text-textFaint">{new Date(version.createdAt).toLocaleString("ko-KR")}</span>
                     </div>
                   ))}
                 </div>

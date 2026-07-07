@@ -110,7 +110,7 @@ export function ProjectCreateForm({ industries }: Props) {
             <Textarea placeholder="시장성, 지불 의사, 기술 구현, 운영 리스크 등" {...register("mainConcern")} />
           </Field>
 
-          {serverError ? <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{serverError}</p> : null}
+          {serverError ? <p className="rounded-md bg-surface p-3 text-sm text-danger">{serverError}</p> : null}
 
           <div className="flex justify-end">
             <Button type="submit" disabled={isSubmitting}>
@@ -136,7 +136,7 @@ function Field({
     <div className="grid gap-2">
       <Label>{label}</Label>
       {children}
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
     </div>
   );
 }

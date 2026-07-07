@@ -168,6 +168,15 @@ Useful routes:
 13. Create a mentor share link, open the read-only share page, and add a mentor comment.
 14. Open `/admin` and show DB-backed metrics.
 
+## Credit System
+
+- Signup grants 300 trial credits as a `CreditLedger` GRANT entry. Balance is the sum of ledger amounts.
+- Each AI generation deducts credits from the project owner: follow-up questions 5, market research 10, competitor matrix 10, personas 8, BM Canvas 8, MVP features 8, validation experiments 8, business plan full draft 20, per-section draft 3, IR One-Pager 8, marketing copy 10. Export is free.
+- Deduction happens only after generation succeeds; insufficient balance returns HTTP 402 and the workspace toast shows the message.
+- Users with `hasUnlimitedCredits` or super admins are never charged.
+- The current balance is shown in the app header, and `/billing` lists the recent ledger history.
+- Admins manage balances in the `/admin` credit section (positive amount = GRANT, negative = ADJUSTMENT) backed by `POST /api/admin/credits`.
+
 ## Notes
 
 - PDF export has a TODO interface only.

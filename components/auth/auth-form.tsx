@@ -20,22 +20,28 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     password: ""
   });
 
-  async function submit() {
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setError(null);
     setIsSubmitting(true);
-    const res = await fetch(`/api/auth/${mode}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
-    setIsSubmitting(false);
-    if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      setError(data?.error ?? "요청에 실패했습니다.");
-      return;
+    try {
+      const res = await fetch(`/api/auth/${mode}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        setError(data?.error ?? "요청에 실패했습니다.");
+        return;
+      }
+      router.push("/billing");
+      router.refresh();
+    } catch {
+      setError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도하세요.");
+    } finally {
+      setIsSubmitting(false);
     }
-    router.push("/billing");
-    router.refresh();
   }
 
   return (
@@ -46,38 +52,40 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           {mode === "signup" ? "FounderOS AI 계정을 만들고 결제정보 등록으로 이동합니다." : "계정으로 로그인해 워크스페이스와 결제를 관리합니다."}
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4">
-        {mode === "signup" ? (
-          <>
-            <Field label="이름">
-              <Input value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} />
-            </Field>
-            <Field label="회사/팀 이름">
-              <Input value={form.organizationName} onChange={(event) => setForm((current) => ({ ...current, organizationName: event.target.value }))} />
-            </Field>
-          </>
-        ) : null}
-        <Field label="이메일">
-          <Input type="email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} />
-        </Field>
-        <Field label="비밀번호">
-          <Input type="password" value={form.password} onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))} />
-        </Field>
-        {error ? <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
-        <Button onClick={submit} disabled={isSubmitting}>
-          {isSubmitting ? "처리 중..." : mode === "signup" ? "회원가입" : "로그인"}
-        </Button>
-        <div className="text-sm text-slate-600">
+      <CardContent>
+        <form onSubmit={submit} className="grid gap-4">
           {mode === "signup" ? (
             <>
-              이미 계정이 있나요? <Link href="/login" className="font-medium text-teal-800">로그인</Link>
+              <Field label="이름">
+                <Input value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} />
+              </Field>
+              <Field label="회사/팀 이름">
+                <Input value={form.organizationName} onChange={(event) => setForm((current) => ({ ...current, organizationName: event.target.value }))} />
+              </Field>
             </>
-          ) : (
-            <>
-              계정이 없나요? <Link href="/signup" className="font-medium text-teal-800">회원가입</Link>
-            </>
-          )}
-        </div>
+          ) : null}
+          <Field label="이메일">
+            <Input type="email" value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} />
+          </Field>
+          <Field label="비밀번호">
+            <Input type="password" value={form.password} onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))} />
+          </Field>
+          {error ? <div className="rounded-md bg-surface p-3 text-sm text-danger">{error}</div> : null}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "처리 중..." : mode === "signup" ? "회원가입" : "로그인"}
+          </Button>
+          <div className="text-sm text-textSub">
+            {mode === "signup" ? (
+              <>
+                이미 계정이 있나요? <Link href="/login" className="font-medium text-accent">로그인</Link>
+              </>
+            ) : (
+              <>
+                계정이 없나요? <Link href="/signup" className="font-medium text-accent">회원가입</Link>
+              </>
+            )}
+          </div>
+        </form>
       </CardContent>
     </Card>
   );

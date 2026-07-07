@@ -100,13 +100,13 @@ function Toast({ toast }: { toast: ToastValue }) {
   if (!toast) return null;
 
   return (
-    <div className="mb-4 flex items-center gap-2 rounded-md border bg-white p-3 text-sm shadow-sm">
+    <div className="mb-4 flex items-center gap-2 rounded-md border border-cardBorder bg-card p-3 text-sm shadow-card">
       {toast.type === "success" ? (
-        <CheckCircle2 className="h-4 w-4 text-teal-700" />
+        <CheckCircle2 className="h-4 w-4 text-success" />
       ) : (
-        <XCircle className="h-4 w-4 text-red-600" />
+        <XCircle className="h-4 w-4 text-danger" />
       )}
-      <span className={toast.type === "success" ? "text-teal-900" : "text-red-700"}>{toast.message}</span>
+      <span className="text-text">{toast.message}</span>
     </div>
   );
 }
@@ -165,7 +165,8 @@ export function IROnePagerEditor({
     setBusy(true);
     const res = await fetch(`/api/projects/${projectId}/one-pager/generate`, { method: "POST" });
     setBusy(false);
-    setToast(res.ok ? { type: "success", message: "IR One-Pager를 생성했습니다." } : { type: "error", message: "생성에 실패했습니다." });
+    const data = res.ok ? null : await res.json().catch(() => null);
+    setToast(res.ok ? { type: "success", message: "IR One-Pager를 생성했습니다." } : { type: "error", message: data?.error ?? "생성에 실패했습니다." });
     router.refresh();
   }
 
@@ -235,7 +236,8 @@ export function MarketingCopyEditor({ projectId, copies }: { projectId: string; 
     setBusy(true);
     const res = await fetch(`/api/projects/${projectId}/marketing-copy/generate`, { method: "POST" });
     setBusy(false);
-    setToast(res.ok ? { type: "success", message: "마케팅 카피를 생성했습니다." } : { type: "error", message: "생성에 실패했습니다." });
+    const data = res.ok ? null : await res.json().catch(() => null);
+    setToast(res.ok ? { type: "success", message: "마케팅 카피를 생성했습니다." } : { type: "error", message: data?.error ?? "생성에 실패했습니다." });
     router.refresh();
   }
 
@@ -309,7 +311,7 @@ export function MarketingCopyEditor({ projectId, copies }: { projectId: string; 
             <div className="grid gap-3">
               <div className="text-sm font-medium">FAQ 5개</div>
               {normalizeFaqs(landingCopy.faqs).map((faq, index) => (
-                <div key={index} className="grid gap-2 rounded-md bg-slate-50 p-3">
+                <div key={index} className="grid gap-2 rounded-md bg-surface p-3">
                   <Input value={faq.question} onChange={(event) => updateFaq(landingCopy, index, "question", event.target.value)} placeholder={`FAQ ${index + 1} 질문`} />
                   <Textarea value={faq.answer} onChange={(event) => updateFaq(landingCopy, index, "answer", event.target.value)} placeholder={`FAQ ${index + 1} 답변`} />
                 </div>

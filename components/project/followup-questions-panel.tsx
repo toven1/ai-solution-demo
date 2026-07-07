@@ -40,7 +40,8 @@ export function FollowupQuestionsPanel({ projectId, questions }: { projectId: st
     setBusyAction(null);
 
     if (!response.ok) {
-      setToast({ type: "error", message: "질문 생성에 실패했습니다." });
+      const data = await response.json().catch(() => null);
+      setToast({ type: "error", message: data?.error ?? "질문 생성에 실패했습니다." });
       return;
     }
 
@@ -88,9 +89,9 @@ export function FollowupQuestionsPanel({ projectId, questions }: { projectId: st
           ) : (
             <div className="grid gap-3">
               {questions.map((question) => (
-                <div key={question.id} className="rounded-md border bg-white p-4">
-                  <div className="mb-2 text-xs font-medium text-slate-500">Question {question.order}</div>
-                  <div className="font-medium leading-6">{question.question}</div>
+                <div key={question.id} className="rounded-md border border-border p-4">
+                  <div className="mb-2 text-xs font-medium text-textFaint">Question {question.order}</div>
+                  <div className="font-medium leading-6 text-text">{question.question}</div>
                   <Textarea
                     className="mt-3 min-h-24"
                     value={answers[question.id] ?? ""}
@@ -114,9 +115,9 @@ export function FollowupQuestionsPanel({ projectId, questions }: { projectId: st
 
 function Toast({ type, message }: { type: "success" | "error"; message: string }) {
   return (
-    <div className="mb-4 flex items-center gap-2 rounded-md border bg-white p-3 text-sm shadow-sm">
-      {type === "success" ? <CheckCircle2 className="h-4 w-4 text-teal-700" /> : <XCircle className="h-4 w-4 text-red-600" />}
-      <span className={type === "success" ? "text-teal-900" : "text-red-700"}>{message}</span>
+    <div className="mb-4 flex items-center gap-2 rounded-md border border-cardBorder bg-card p-3 text-sm shadow-card">
+      {type === "success" ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-danger" />}
+      <span className="text-text">{message}</span>
     </div>
   );
 }

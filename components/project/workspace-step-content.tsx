@@ -99,12 +99,12 @@ export function WorkspaceStepContent({
           </CardHeader>
           <CardContent className="grid gap-2">
             {project.businessPlan.map((section) => (
-              <div key={section.id} className="flex items-center justify-between rounded-md border p-3 text-sm">
+              <div key={section.id} className="flex items-center justify-between rounded-md border border-border p-3 text-sm">
                 <div>
-                  <div className="font-medium">{section.order}. {section.title}</div>
-                  <div className="mt-1 text-slate-500">{section.guide}</div>
+                  <div className="font-medium text-text">{section.order}. {section.title}</div>
+                  <div className="mt-1 text-textFaint">{section.guide}</div>
                 </div>
-                <span className="text-xs text-slate-500">{section.completenessScore}%</span>
+                <span className="text-xs text-textFaint">{section.completenessScore}%</span>
               </div>
             ))}
           </CardContent>

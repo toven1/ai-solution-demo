@@ -10,11 +10,11 @@ export function ReadinessScoreCard({ score }: { score: number }) {
     <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">Readiness Score</span>
-          <Gauge className="h-4 w-4 text-teal-700" />
+          <span className="text-sm font-medium text-text">Readiness Score</span>
+          <Gauge className="h-4 w-4 text-accentStrong" />
         </div>
-        <div className="mt-3 text-3xl font-semibold">{value}</div>
-        <p className="mt-1 text-xs text-slate-500">{label}</p>
+        <div className="mt-3 text-3xl font-semibold text-text">{value}</div>
+        <p className="mt-1 text-xs text-textFaint">{label}</p>
       </CardContent>
     </Card>
   );

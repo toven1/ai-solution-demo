@@ -16,6 +16,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ pr
     const share = await setMentorShareActive(shareId, projectId, parsed.data.active);
     return NextResponse.json({ share });
   } catch (error) {
+    if (error instanceof Error && error.message === "SHARE_NOT_FOUND") {
+      return NextResponse.json({ error: "해당 프로젝트의 공유 링크를 찾을 수 없습니다." }, { status: 404 });
+    }
     console.error(error);
     return NextResponse.json({ error: "공유 링크 상태 변경에 실패했습니다." }, { status: 500 });
   }

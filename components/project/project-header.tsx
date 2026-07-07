@@ -21,7 +21,7 @@ type ProjectHeaderProps = {
 export function ProjectHeader({ project }: ProjectHeaderProps) {
   return (
     <div className="grid gap-4">
-      <Button asChild variant="ghost" size="sm" className="w-fit px-0">
+      <Button asChild variant="ghost" size="sm" className="w-fit px-0 hover:bg-transparent">
         <Link href="/dashboard">
           <ArrowLeft className="h-4 w-4" /> Dashboard
         </Link>
@@ -30,12 +30,12 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
         <CardContent className="grid gap-5 p-5 xl:grid-cols-[1fr_220px_220px]">
           <div className="min-w-0">
             <div className="mb-3 flex flex-wrap items-center gap-2">
-              <span className="rounded-md bg-teal-50 px-2 py-1 text-xs font-medium text-teal-800">{project.industry}</span>
-              <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">{project.targetCustomer}</span>
+              <span className="rounded-md bg-accentSoft px-2 py-1 text-xs font-medium text-accentStrong">{project.industry}</span>
+              <span className="rounded-md bg-surface px-2 py-1 text-xs font-medium text-textSub">{project.targetCustomer}</span>
             </div>
-            <h1 className="text-2xl font-semibold tracking-normal text-slate-950">{project.title}</h1>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{project.ideaSummary}</p>
-            <Button asChild variant="outline" size="sm" className="mt-4">
+            <h1 className="text-2xl font-semibold tracking-normal text-text">{project.title}</h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-textSub">{project.ideaSummary}</p>
+            <Button asChild variant="secondary" size="sm" className="mt-4">
               <Link href={`/projects/${project.id}?edit=1`}>
                 <Pencil className="h-4 w-4" /> 상세 수정
               </Link>

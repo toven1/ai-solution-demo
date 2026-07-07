@@ -64,7 +64,8 @@ export function ResearchReport({
     setIsGenerating(false);
 
     if (!response.ok) {
-      setToast({ type: "error", message: "시장조사 생성에 실패했습니다." });
+      const data = await response.json().catch(() => null);
+      setToast({ type: "error", message: data?.error ?? "시장조사 생성에 실패했습니다." });
       return;
     }
 
@@ -95,17 +96,17 @@ export function ResearchReport({
                 const evidence = insight.evidenceSourceIds.map((id) => sourceMap.get(id)).filter(Boolean) as ResearchSource[];
 
                 return (
-                  <div key={insight.id} className="rounded-md border bg-white p-4">
+                  <div key={insight.id} className="rounded-md border border-border p-4">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                      <span className="rounded-md bg-accentSoft px-2 py-1 text-xs font-medium text-accentStrong">
                         {categoryLabels[insight.category] ?? insight.category}
                       </span>
                       <ConfidenceBadge level={insight.confidenceLevel === "high" ? "high" : insight.confidenceLevel === "low" ? "low" : "medium"} />
                       {insight.isAssumption || insight.isAiAssumed || evidence.length === 0 ? <AssumptionBadge /> : null}
                     </div>
-                    <h3 className="mt-3 font-semibold">{insight.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{insight.content}</p>
-                    <div className="mt-3 text-xs text-slate-500">
+                    <h3 className="mt-3 font-semibold text-text">{insight.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-textSub">{insight.content}</p>
+                    <div className="mt-3 text-xs text-textFaint">
                       근거 링크 {evidence.length}개
                     </div>
                   </div>
@@ -135,9 +136,9 @@ export function ResearchReport({
 
 function Toast({ type, message }: { type: "success" | "error"; message: string }) {
   return (
-    <div className="mb-4 flex items-center gap-2 rounded-md border bg-white p-3 text-sm shadow-sm">
-      {type === "success" ? <CheckCircle2 className="h-4 w-4 text-teal-700" /> : <XCircle className="h-4 w-4 text-red-600" />}
-      <span className={type === "success" ? "text-teal-900" : "text-red-700"}>{message}</span>
+    <div className="mb-4 flex items-center gap-2 rounded-md border border-cardBorder bg-card p-3 text-sm shadow-card">
+      {type === "success" ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-danger" />}
+      <span className="text-text">{message}</span>
     </div>
   );
 }
